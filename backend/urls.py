@@ -9,7 +9,7 @@ from .views import MyTokenObtainPairView, index
 urlpatterns = [
     path('admin', admin.site.urls),
     path('api/login/', MyTokenObtainPairView.as_view()),
-    #  path('', TemplateView.as_view(template_name="index.html")),
+    path('core/', include('core.urls')),
     re_path(r'.*', index, name='index')
 ]
 

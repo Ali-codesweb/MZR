@@ -1,19 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   Group,
-  Code,
   ScrollArea,
   createStyles,
-  AppShell,
   Text,
   MediaQuery,
   Header,
   Burger,
   Drawer,
   Button,
+  ActionIcon,
+  Container,
 } from "@mantine/core";
-import { UserButton } from "./UserButton";
 import { LinksGroup } from "./NavbarLinksGroup";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -24,8 +23,11 @@ import {
   IconFileAnalytics,
   IconAdjustments,
   IconLock,
+  IconLogout,
 } from "@tabler/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMainStore } from "../store";
+import { storeManagerData, viceManagerData, faizData } from "../constants";
 
 const mockdata = [
   { label: "Dashboard", icon: IconGauge },
@@ -73,8 +75,10 @@ const mockdata = [
 const useStyles = createStyles((theme) => ({
   navbar: {
     backgroundColor: theme.colors.dark[6],
+    // height:'100%',
     paddingBottom: 0,
     position: "sticky",
+    top: "0",
   },
 
   header: {
@@ -109,19 +113,32 @@ const useStyles = createStyles((theme) => ({
 }));
 
 function AppBar({ children }) {
+  const location = useLocation();
   const smallScreen = useMediaQuery("(max-width: 576px)");
   const { classes } = useStyles();
-  const links = mockdata.map((item) => (
-    <LinksGroup {...item} key={item.label} />
-  ));
+  const removeToken = useMainStore((state) => state.removeToken);
+  const [navbarData, setnavbarData] = useState([]);
   const navigate = useNavigate();
   const [opened, setOpened] = useState(false);
+  const links = navbarData.map((item) => (
+    <LinksGroup setOpened={setOpened} {...item} key={item.label} />
+  ));
+
+  useEffect(() => {
+    if (location.pathname.split("/")[1] == "vice-manager")
+      setnavbarData(viceManagerData);
+    if (location.pathname.split("/")[1] == "store-manager")
+      setnavbarData(storeManagerData);
+    if (location.pathname.split("/")[1] == "faiz") setnavbarData(faizData);
+  }, [location.pathname]);
   function logout() {
+    sessionStorage.removeItem("mzr_token");
+    removeToken();
     navigate("/");
   }
   return (
     <>
-      {smallScreen ? (
+      {smallScreen && location.pathname != "/" ? (
         <Header height={{ base: 50, md: 70 }} className="dark-bg" p="md">
           <div
             style={{ display: "flex", alignItems: "center", height: "100%" }}
@@ -141,51 +158,59 @@ function AppBar({ children }) {
               Test Software
             </Text>
           </div>
-          <Drawer
-            classeName="bg-dark"
-            opened={opened}
-            onClose={() => setOpened(false)}
-            size="sm"
-          >
-            <Button onClick={logout} color="red" mb={20}>
-              Logout
-            </Button>
-            <ScrollArea style={{ height: 600 }}>
-              <div className={classes.linksInner}>{links}</div>
-            </ScrollArea>
+          <Drawer opened={opened} onClose={() => setOpened(false)} size="sm">
+            <div className="dark-bg">
+              <ActionIcon
+                color="red"
+                onClick={logout}
+                mb={20}
+                className="mx-auto"
+              >
+                <IconLogout size={28} />
+              </ActionIcon>
+              <ScrollArea style={{ height: 600 }}>
+                <div className={classes.linksInner}>{links}</div>
+              </ScrollArea>
+            </div>
           </Drawer>
         </Header>
       ) : null}
-      <div className="d-flex">
-        <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-          <Navbar
-            // height={800}
-            width={{ sm: 300 }}
-            p="md"
-            className={classes.navbar}
-          >
-            <Navbar.Section className={classes.header}>
-              <Group position="apart">
-                <Text>Test Software</Text>
-                {/* <Logo width={120} /> */}
-              </Group>
-            </Navbar.Section>
-
-            <Navbar.Section
-              grow
-              className={classes.links}
-              component={ScrollArea}
+      {location.pathname != "/" ? (
+        <div className="d-flex">
+          <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+            <Navbar
+              // height={800}
+              width={{ sm: 300 }}
+              p="md"
+              className={classes.navbar}
             >
-              <div className={classes.linksInner}>{links}</div>
-            </Navbar.Section>
-            <Button onClick={logout} color="red.9" mt={20}>
-              Logout
-            </Button>
-          </Navbar>
-        </MediaQuery>
+              <Navbar.Section className={classes.header}>
+                <Group position="apart">
+                  <Text>Test Software</Text>
+                  {/* <Logo width={120} /> */}
+                </Group>
+              </Navbar.Section>
 
-        <div className="p-4">{children}</div>
-      </div>
+              <Navbar.Section
+                grow
+                className={classes.links}
+                component={ScrollArea}
+              >
+                <div className={classes.linksInner}>{links}</div>
+              </Navbar.Section>
+              <Button onClick={logout} color="red.9" mt={20}>
+                Logout
+              </Button>
+            </Navbar>
+          </MediaQuery>
+
+          <Container px={20} py={10} mx={0} className=" w-100">
+            {children}
+          </Container>
+        </div>
+      ) : (
+        <div>{children} dsd</div>
+      )}
     </>
   );
 }

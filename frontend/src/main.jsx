@@ -6,13 +6,7 @@ import { NotificationsProvider } from "@mantine/notifications";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <MantineProvider
-  // theme={{
-  //   defaultGradient: {
-  //     from: "orange",
-  //     to: "red",
-  //     deg: 45,
-  //   },
-  // }}
+  theme={{ loader: 'bars' }}
   >
     <NotificationsProvider position="top-right" autoClose={5000}>
       <App />

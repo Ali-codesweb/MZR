@@ -1,19 +1,21 @@
 import { SimpleGrid } from "@mantine/core";
 import React from "react";
-import AppBar from "../components/AppBar";
+import { useMainStore } from "../store";
 import HomeUICard from "../components/HomeUICard";
 function Home() {
+  const token = useMainStore((state) => state?.token);
+  const role = useMainStore((state) => state?.role);
   return (
-    <AppBar>
       <div>
         <SimpleGrid
           cols={4}
           breakpoints={[
-            { maxWidth: 'xs', cols: 2, spacing: "md" },
-            { maxWidth: 'md', cols: 3, spacing: "sm" },
-            { maxWidth: 'xl', cols: 4, spacing: "sm" },
+            { maxWidth: "xs", cols: 2, spacing: "md" },
+            { maxWidth: "md", cols: 3, spacing: "sm" },
+            { maxWidth: "xl", cols: 4, spacing: "sm" },
           ]}
         >
+          <div>{role}</div>
           <HomeUICard />
           <HomeUICard />
           <HomeUICard />
@@ -21,7 +23,6 @@ function Home() {
           <HomeUICard />
         </SimpleGrid>
       </div>
-    </AppBar>
   );
 }
 
